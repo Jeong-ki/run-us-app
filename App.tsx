@@ -34,9 +34,9 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const [dummy, setDummy] = useState<any>({});
   const handleTestApi = () => {
-    console.log('콘솔 테스트');
-    console.warn('경고 콘솔 테스트');
-    console.error('에러 콘솔 테스트');
+    // console.log('콘솔 테스트');
+    // console.warn('경고 콘솔 테스트');
+    // console.error('에러 콘솔 테스트');
     fetch('https://jsonplaceholder.typicode.com/todos/1')
       .then(response => response.json())
       .then(json => setDummy(json));
