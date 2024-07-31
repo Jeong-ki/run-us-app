@@ -5,9 +5,10 @@
  * @format
  */
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -31,8 +32,24 @@ type SectionProps = PropsWithChildren<{
 
 function Section({children, title}: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const [dummy, setDummy] = useState<any>({});
+  const handleTestApi = () => {
+    console.log('콘솔 테스트');
+    console.warn('경고 콘솔 테스트');
+    console.error('에러 콘솔 테스트');
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+      .then(response => response.json())
+      .then(json => setDummy(json));
+  };
+
+  useEffect(() => {
+    console.log('콘솔 테스트');
+  }, []);
   return (
     <View style={styles.sectionContainer}>
+      <Pressable onPress={handleTestApi}>
+        <Text style={{color: 'pink'}}>{dummy?.title || '123'}</Text>
+      </Pressable>
       <Text
         style={[
           styles.sectionTitle,
