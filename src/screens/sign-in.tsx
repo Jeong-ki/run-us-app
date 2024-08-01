@@ -6,11 +6,13 @@ import {useSignInUser} from '@/api/auth';
 import {signInValidation, saveRefreshToken, isEmptyObj} from '@/utils';
 import {useForm} from '@/hooks';
 import {Button} from '@/components/elements';
+import {setUser} from '@/slices/user';
+import {useDispatch} from 'react-redux';
 import type {SignInScreenProps} from '@/navigation/types';
 import type {ISignInReq} from '@/api/auth/types';
-import {setUser} from '@/slices/user';
 
 const SignInScreen = ({navigation}: SignInScreenProps) => {
+  const dispatch = useDispatch();
   const initialState = useMemo(
     () => ({
       email: '',
@@ -29,7 +31,7 @@ const SignInScreen = ({navigation}: SignInScreenProps) => {
     onSuccess: async data => {
       const {refreshToken, ...rest} = data;
       saveRefreshToken(refreshToken);
-      setUser(rest);
+      dispatch(setUser(rest));
     },
     onError: signInError => {
       console.error('SignIn Error: ', signInError);

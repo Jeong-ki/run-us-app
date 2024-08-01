@@ -7,8 +7,11 @@ import {
 import {api} from './axios.instance';
 import {loadRefreshToken, removeRefreshToken, saveRefreshToken} from '@/utils';
 import {useSelector} from 'react-redux';
-import type {RootState} from '@/store/reducer';
 import {logout, setUser} from '@/slices/user';
+import type {RootState} from '@/store/reducer';
+import store from '@/store';
+
+const {dispatch} = store;
 
 export const setInterceptors = (instance: AxiosInstance) => {
   instance.interceptors.request.use(
@@ -43,11 +46,13 @@ export const setInterceptors = (instance: AxiosInstance) => {
               const {name, email, newAccessToken, newRefreshToken} =
                 response.data;
 
-              setUser({
-                name,
-                email,
-                accessToken: newAccessToken,
-              });
+              dispatch(
+                setUser({
+                  name,
+                  email,
+                  accessToken: newAccessToken,
+                }),
+              );
               await saveRefreshToken(newRefreshToken);
               if (originalRequest.headers) {
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -56,12 +61,12 @@ export const setInterceptors = (instance: AxiosInstance) => {
             } catch (refreshError) {
               console.error('refreshError: ', refreshError);
               await removeRefreshToken();
-              logout();
+              dispatch(logout());
             }
           }
         } else {
           await removeRefreshToken();
-          logout();
+          dispatch(logout());
         }
       }
       return Promise.reject(error);

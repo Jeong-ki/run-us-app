@@ -3,15 +3,16 @@ import {Text, View} from 'react-native';
 import {Button} from '@/components/elements';
 import {removeRefreshToken} from '@/utils';
 import {logout} from '@/slices/user';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import type {UserScreenProps} from '@/navigation/types';
 import type {RootState} from '@/store/reducer';
 
 const UserScreen = ({}: UserScreenProps) => {
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user.user);
 
   const handleLogout = async () => {
-    logout();
+    dispatch(logout());
     removeRefreshToken();
   };
 

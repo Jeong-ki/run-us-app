@@ -13,11 +13,13 @@ import {useSignUpUser} from '@/api/auth';
 import {RouteNames} from '@/navigation/route-names';
 import {signUpValidation, saveRefreshToken} from '@/utils';
 import {useForm} from '@/hooks';
+import {setUser} from '@/slices/user';
+import {useDispatch} from 'react-redux';
 import type {SignUpScreenProps} from '@/navigation/types';
 import type {ISignUpReq} from '@/api/auth/types';
-import {setUser} from '@/slices/user';
 
 const SignUp = ({navigation}: SignUpScreenProps) => {
+  const dispatch = useDispatch();
   const initialState = useMemo(
     () => ({
       email: '',
@@ -33,7 +35,7 @@ const SignUp = ({navigation}: SignUpScreenProps) => {
     onSuccess: async data => {
       const {refreshToken, ...rest} = data;
       saveRefreshToken(refreshToken);
-      setUser(rest);
+      dispatch(setUser(rest));
     },
     onError: signUpError => {
       console.error('SignUp Error: ', signUpError);
