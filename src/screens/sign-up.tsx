@@ -9,14 +9,14 @@ import {
   View,
 } from 'react-native';
 import DismissKeyboardView from '@/components/layout/dismiss-keyboard-view';
-import {useSignUpUser} from '@/api/auth';
 import {RouteNames} from '@/navigation/route-names';
 import {signUpValidation, saveRefreshToken} from '@/utils';
 import {useForm} from '@/hooks';
-import {setUser} from '@/slices/user';
 import {useDispatch} from 'react-redux';
+import {setUser} from '@/slices/user';
+import {useSignUpMutation} from '@/slices/api/auth';
+import {ISignUpReq} from '@/slices/api/auth/types';
 import type {SignUpScreenProps} from '@/navigation/types';
-import type {ISignUpReq} from '@/api/auth/types';
 
 const SignUp = ({navigation}: SignUpScreenProps) => {
   const dispatch = useDispatch();
@@ -31,27 +31,22 @@ const SignUp = ({navigation}: SignUpScreenProps) => {
   const emailRef: MutableRefObject<TextInput | null> = useRef(null);
   const passwordRef: MutableRefObject<TextInput | null> = useRef(null);
 
-  const {mutate: signUpUser, isPending} = useSignUpUser({
-    onSuccess: async data => {
+  const [signUp, {isLoading}] = useSignUpMutation();
+
+  const handleSignUp = async (signUpData: ISignUpReq) => {
+    try {
+      const data = await signUp(signUpData).unwrap();
       const {refreshToken, ...rest} = data;
       saveRefreshToken(refreshToken);
       dispatch(setUser(rest));
-    },
-    onError: signUpError => {
+    } catch (signUpError) {
       console.error('SignUp Error: ', signUpError);
-    },
-  });
-
-  const handleSubmit = useCallback(
-    (values: ISignUpReq) => {
-      signUpUser(values);
-    },
-    [signUpUser],
-  );
+    }
+  };
 
   const {values, errors, onChange, onSubmit} = useForm({
     initialValues: initialState,
-    handleSubmit,
+    handleSubmit: handleSignUp,
     validation: signUpValidation,
   });
 
@@ -107,7 +102,7 @@ const SignUp = ({navigation}: SignUpScreenProps) => {
           }
           disabled={!canGoNext} // !canGoNext || loading
           onPress={onSubmit}>
-          {isPending ? (
+          {isLoading ? (
             <ActivityIndicator color="white" />
           ) : (
             <Text style={styles.loginButtonText}>회원가입</Text>

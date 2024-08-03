@@ -4,7 +4,7 @@ import {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from 'axios';
-import {api} from './axios.instance';
+import {api} from './instance';
 import {loadRefreshToken, removeRefreshToken, saveRefreshToken} from '@/utils';
 import {useSelector} from 'react-redux';
 import {logout, setUser} from '@/slices/user';

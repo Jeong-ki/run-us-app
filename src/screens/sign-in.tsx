@@ -2,14 +2,14 @@ import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native';
 import React, {MutableRefObject, useCallback, useMemo, useRef} from 'react';
 import {DismissKeyboardView} from '@/components/layout';
 import {RouteNames} from '@/navigation/route-names';
-import {useSignInUser} from '@/api/auth';
 import {signInValidation, saveRefreshToken, isEmptyObj} from '@/utils';
 import {useForm} from '@/hooks';
 import {Button} from '@/components/elements';
 import {setUser} from '@/slices/user';
 import {useDispatch} from 'react-redux';
+import {useSignInMutation} from '@/slices/api/auth';
 import type {SignInScreenProps} from '@/navigation/types';
-import type {ISignInReq} from '@/api/auth/types';
+import type {ISignInReq} from '@/slices/api/auth/types';
 
 const SignInScreen = ({navigation}: SignInScreenProps) => {
   const dispatch = useDispatch();
@@ -23,31 +23,29 @@ const SignInScreen = ({navigation}: SignInScreenProps) => {
   const emailRef: MutableRefObject<TextInput | null> = useRef(null);
   const passwordRef: MutableRefObject<TextInput | null> = useRef(null);
 
-  const {
-    mutate: signInUser,
-    isPending,
-    isError,
-  } = useSignInUser({
-    onSuccess: async data => {
+  const [signIn, {isLoading, isError}] = useSignInMutation();
+
+  const handleSignIn = async (signInData: ISignInReq) => {
+    try {
+      const data = await signIn(signInData).unwrap();
       const {refreshToken, ...rest} = data;
       saveRefreshToken(refreshToken);
       dispatch(setUser(rest));
-    },
-    onError: signInError => {
+    } catch (signInError) {
       console.error('SignIn Error: ', signInError);
-    },
-  });
+    }
+  };
 
-  const handleSubmit = useCallback(
-    (values: ISignInReq) => {
-      signInUser(values);
-    },
-    [signInUser],
-  );
+  // const handleSubmit = useCallback(
+  //   (values: ISignInReq) => {
+  //     handleSignIn(values);
+  //   },
+  //   [handleSignIn],
+  // );
 
   const {values, errors, onChange, onSubmit} = useForm({
     initialValues: initialState,
-    handleSubmit,
+    handleSubmit: handleSignIn,
     validation: signInValidation,
   });
 
@@ -102,7 +100,7 @@ const SignInScreen = ({navigation}: SignInScreenProps) => {
       <View style={styles.buttonZone}>
         <Button
           onClick={onSubmit}
-          isLoading={isPending}
+          isLoading={isLoading}
           disabled={!canGoNext}
           width={90}>
           로그인

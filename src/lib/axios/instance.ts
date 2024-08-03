@@ -1,7 +1,7 @@
 import axios, {AxiosInstance} from 'axios';
 import {Platform} from 'react-native';
 import Config from 'react-native-config';
-import {setInterceptors} from './axios.interceptors';
+import {setInterceptors} from './interceptors';
 
 const {IOS_BASE_URL, ANDROID_BASE_URL} = Config;
 
