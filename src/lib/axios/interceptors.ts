@@ -4,19 +4,17 @@ import {
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from 'axios';
-import {api} from './instance';
+import {instance} from './instance';
 import {loadRefreshToken, removeRefreshToken, saveRefreshToken} from '@/utils';
-import {useSelector} from 'react-redux';
 import {logout, setUser} from '@/slices/user';
-import type {RootState} from '@/store/reducer';
-import store from '@/store';
 
-const {dispatch} = store;
+const getStore = () => require('@/store').default;
 
-export const setInterceptors = (instance: AxiosInstance) => {
-  instance.interceptors.request.use(
+export const setInterceptors = (axiosInstance: AxiosInstance) => {
+  axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const user = useSelector((state: RootState) => state.user.user);
+      const store = getStore();
+      const user = store.getState().user.user;
       if (user?.accessToken) {
         config.headers.Authorization = `Bearer ${user?.accessToken}`;
       }
@@ -27,9 +25,10 @@ export const setInterceptors = (instance: AxiosInstance) => {
     },
   );
 
-  instance.interceptors.response.use(
+  axiosInstance.interceptors.response.use(
     response => response,
     async error => {
+      const store = getStore();
       if (error.response && error.config) {
         const originalRequest = error.config as AxiosRequestConfig;
         if (
@@ -40,13 +39,13 @@ export const setInterceptors = (instance: AxiosInstance) => {
           const refreshToken = await loadRefreshToken();
           if (refreshToken) {
             try {
-              const response = await api.post('/auth/refresh-user', {
+              const response = await instance.post('/auth/refresh-user', {
                 refreshToken: refreshToken,
               });
               const {name, email, newAccessToken, newRefreshToken} =
                 response.data;
 
-              dispatch(
+              store.dispatch(
                 setUser({
                   name,
                   email,
@@ -61,16 +60,16 @@ export const setInterceptors = (instance: AxiosInstance) => {
             } catch (refreshError) {
               console.error('refreshError: ', refreshError);
               await removeRefreshToken();
-              dispatch(logout());
+              store.dispatch(logout());
             }
           }
         } else {
           await removeRefreshToken();
-          dispatch(logout());
+          store.dispatch(logout());
         }
       }
       return Promise.reject(error);
     },
   );
-  return instance;
+  return axiosInstance;
 };

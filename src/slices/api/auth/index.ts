@@ -1,4 +1,4 @@
-import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+import {createApi} from '@reduxjs/toolkit/query/react';
 import type {
   ISignInRes,
   ISignInReq,
@@ -7,39 +7,44 @@ import type {
   ISignUpRes,
   ISignUpReq,
 } from './types';
+import {axiosBaseQuery} from '@/lib/axios/axios-base-query';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({baseUrl: 'https://runusapi.co/api/v1'}),
+  baseQuery: axiosBaseQuery({isToken: false}),
   endpoints: builder => ({
+    getDummy: builder.query<any, void>({
+      query: () => ({url: '/todos/1'}),
+    }),
     getMyInfo: builder.query<IMyInfo, void>({
-      query: () => '/my',
+      query: () => ({url: '/my'}),
     }),
     refreshUser: builder.mutation<IRefreshUser, string>({
       query: refreshToken => ({
         url: '/auth/refresh-user',
         method: 'POST',
-        body: {refreshToken},
+        data: {refreshToken},
       }),
     }),
     signIn: builder.mutation<ISignInRes, ISignInReq>({
       query: signInData => ({
         url: '/auth/signin',
         method: 'POST',
-        body: signInData,
+        data: signInData,
       }),
     }),
     signUp: builder.mutation<ISignUpRes, ISignUpReq>({
       query: signUpData => ({
         url: '/auth/signup',
         method: 'POST',
-        body: signUpData,
+        data: signUpData,
       }),
     }),
   }),
 });
 
 export const {
+  useGetDummyQuery,
   useGetMyInfoQuery,
   useRefreshUserMutation,
   useSignInMutation,

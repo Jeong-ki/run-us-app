@@ -1,21 +1,22 @@
-import axios, {AxiosInstance} from 'axios';
-import {Platform} from 'react-native';
-import Config from 'react-native-config';
+import type {AxiosInstance} from 'axios';
+
+// import {Platform} from 'react-native';
+// import Config from 'react-native-config';
 import {setInterceptors} from './interceptors';
+import axios from 'axios';
 
-const {IOS_BASE_URL, ANDROID_BASE_URL} = Config;
+// const {IOS_BASE_URL, ANDROID_BASE_URL} = Config;
 
-const baseURL = Platform.select({
-  ios: IOS_BASE_URL,
-  android: ANDROID_BASE_URL,
-});
+// const baseURL = Platform.select({
+//   ios: IOS_BASE_URL,
+//   android: ANDROID_BASE_URL,
+// });
 
-export const api: AxiosInstance = axios.create({
-  baseURL, // FIXME: 백엔드 배포 후 URL 변경
+export const instance: AxiosInstance = axios.create({
+  baseURL: 'https://jsonplaceholder.typicode.com',
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Type': 'application/json',
   },
 });
 
-export const tokenApi = setInterceptors(api);
+export const tokenInstance = setInterceptors(instance);

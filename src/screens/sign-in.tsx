@@ -36,13 +36,6 @@ const SignInScreen = ({navigation}: SignInScreenProps) => {
     }
   };
 
-  // const handleSubmit = useCallback(
-  //   (values: ISignInReq) => {
-  //     handleSignIn(values);
-  //   },
-  //   [handleSignIn],
-  // );
-
   const {values, errors, onChange, onSubmit} = useForm({
     initialValues: initialState,
     handleSubmit: handleSignIn,
