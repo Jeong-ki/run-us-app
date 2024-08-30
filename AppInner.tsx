@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import AppStack from '@/navigation/app-stack';
-import LoginStack from '@/navigation/login-stack';
+// import LoginStack from '@/navigation/login-stack';
 import {loadRefreshToken, removeRefreshToken, saveRefreshToken} from '@/utils';
 import {useDispatch, useSelector} from 'react-redux';
 import type {RootState} from '@/store/reducer';
@@ -40,5 +40,6 @@ export default function AppInner() {
     rememberMe();
   }, [dispatch, isLoggedIn, refreshUser]);
 
-  return isLoggedIn ? <AppStack /> : <LoginStack />;
+  return <AppStack />;
+  // return isLoggedIn ? <AppStack /> : <LoginStack />;
 }

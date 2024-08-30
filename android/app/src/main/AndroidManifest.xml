@@ -9,6 +9,9 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+      <meta-data
+            android:name="com.naver.maps.map.lf46nj2m23"
+            android:value="lf46nj2m23" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
