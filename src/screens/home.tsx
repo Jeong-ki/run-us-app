@@ -1,9 +1,9 @@
 import React from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {StyleSheet, Text, View} from 'react-native';
-import type {HomeScreenProps} from '@/navigation/types';
 import NaverMapView, {Marker, Path} from 'react-native-nmap';
 import getDistanceFromLatLonInKm from '@/utils/map';
+import type {HomeScreenProps} from '@/navigation/types';
 
 const HomeScreen = ({}: HomeScreenProps) => {
   const start = {latitude: 37.5665, longitude: 126.978}; // 서울의 좌표
@@ -14,7 +14,7 @@ const HomeScreen = ({}: HomeScreenProps) => {
       <View style={{height: 500}}>
         <NaverMapView
           style={{width: '100%', height: '100%'}}
-          zoomControl={false}
+          zoomControl={true}
           center={{
             zoom: 10,
             tilt: 50,

@@ -6,11 +6,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import type {RootState} from '@/store/reducer';
 import {logout, setUser} from '@/slices/user';
 import {useRefreshUserMutation} from '@/slices/api/auth';
+import usePermissions from '@/hooks/usePermissions';
 
 export default function AppInner() {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state: RootState) => !!state.user.user);
   const [refreshUser] = useRefreshUserMutation();
+
+  usePermissions();
 
   useEffect(() => {
     const rememberMe = async () => {
