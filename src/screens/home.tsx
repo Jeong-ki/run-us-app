@@ -1,29 +1,36 @@
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {StyleSheet, Text, View} from 'react-native';
-import NaverMapView, {Marker, Path} from 'react-native-nmap';
-import getDistanceFromLatLonInKm from '@/utils/map';
+import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 import type {HomeScreenProps} from '@/navigation/types';
 import Geolocation from '@react-native-community/geolocation';
+import {ICoordinate} from '@/@types/common';
+import {calculateDistance} from '@/utils/map';
 
 const HomeScreen = ({}: HomeScreenProps) => {
-  const start = {latitude: 37.5665, longitude: 126.978}; // 서울의 좌표
-  const end = {latitude: 35.1796, longitude: 129.0756}; // 부산의 좌표
-
-  const [myPosition, setMyPosition] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
-
-  console.log(myPosition);
+  const [myPosition, setMyPosition] = useState<ICoordinate | null>(null);
+  const [pathCoordinates, setPathCoordinates] = useState<Array<ICoordinate>>(
+    [],
+  );
+  const [totalDistance, setTotalDistance] = useState<number>(0);
 
   useEffect(() => {
-    // getCurrentPosition, watchPosition
-    Geolocation.watchPosition(
-      info => {
-        setMyPosition({
-          latitude: info.coords.latitude,
-          longitude: info.coords.longitude,
+    // 위치 추적 시작
+    const watchId = Geolocation.watchPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        const newPosition = {latitude, longitude};
+
+        setMyPosition(newPosition);
+        // setPathCoordinates(prevCoords => [...prevCoords, newPosition]);
+
+        setPathCoordinates(prevCoords => {
+          if (prevCoords.length > 0) {
+            const lastPosition = prevCoords[prevCoords.length - 1];
+            const distance = calculateDistance(lastPosition, newPosition);
+            setTotalDistance(prevDistance => prevDistance + distance);
+          }
+          return [...prevCoords, newPosition];
         });
       },
       console.error,
@@ -33,57 +40,45 @@ const HomeScreen = ({}: HomeScreenProps) => {
         distanceFilter: 1, // n 미터 이상 이동했을 때 콜백 실행
       },
     );
+
+    return () => {
+      Geolocation.clearWatch(watchId);
+    };
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{height: 700}}>
+      <View style={{height: 600}}>
         <NaverMapView
           style={{width: '100%', height: '100%'}}
           zoomControl={true}
           center={{
-            zoom: 10,
-            tilt: 50,
+            zoom: 16,
+            tilt: 0,
             bearing: 0,
-            latitude: (start.latitude + end.latitude) / 2,
-            longitude: (start.longitude + end.longitude) / 2,
+            latitude: myPosition?.latitude || 37.564362,
+            longitude: myPosition?.longitude || 126.977011,
           }}>
-          <Marker
-            coordinate={{latitude: start.latitude, longitude: start.longitude}}
-            pinColor="blue"
-          />
-          <Path
-            coordinates={[
-              {latitude: start.latitude, longitude: start.longitude},
-              {latitude: end.latitude, longitude: end.longitude},
-            ]}
-          />
-          <Marker
-            coordinate={{latitude: end.latitude, longitude: end.longitude}}
-          />
           {myPosition && (
             <Marker
-              coordinate={{
-                latitude: myPosition.latitude,
-                longitude: myPosition.longitude,
-              }}
+              coordinate={myPosition}
               pinColor="red" // 내 위치는 빨간색 핀으로 표시
+            />
+          )}
+          {pathCoordinates.length > 1 && (
+            <Polyline
+              coordinates={pathCoordinates}
+              strokeWidth={5}
+              strokeColor="#00FF00"
+              onClick={() => console.warn('Ployline clicked!')}
             />
           )}
         </NaverMapView>
       </View>
       <View>
-        <Text>
-          {getDistanceFromLatLonInKm(
-            start.latitude,
-            start.longitude,
-            end.latitude,
-            end.longitude,
-          ).toFixed(1)}
-          km
-        </Text>
         <Text>latitude: {myPosition?.latitude}</Text>
         <Text>longitude: {myPosition?.longitude}</Text>
+        <Text>Total Distance: {totalDistance.toFixed(2)} meters</Text>
       </View>
     </SafeAreaView>
   );
