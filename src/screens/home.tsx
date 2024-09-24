@@ -16,14 +16,13 @@ const HomeScreen = ({}: HomeScreenProps) => {
 
   useEffect(() => {
     // 위치 추적 시작
+    console.log('start watch');
     const watchId = Geolocation.watchPosition(
       position => {
         const {latitude, longitude} = position.coords;
         const newPosition = {latitude, longitude};
 
         setMyPosition(newPosition);
-        // setPathCoordinates(prevCoords => [...prevCoords, newPosition]);
-
         setPathCoordinates(prevCoords => {
           if (prevCoords.length > 0) {
             const lastPosition = prevCoords[prevCoords.length - 1];
@@ -42,6 +41,7 @@ const HomeScreen = ({}: HomeScreenProps) => {
     );
 
     return () => {
+      console.log('clear watch');
       Geolocation.clearWatch(watchId);
     };
   }, []);
@@ -78,7 +78,7 @@ const HomeScreen = ({}: HomeScreenProps) => {
       <View>
         <Text>latitude: {myPosition?.latitude}</Text>
         <Text>longitude: {myPosition?.longitude}</Text>
-        <Text>Total Distance: {totalDistance.toFixed(2)} meters</Text>
+        <Text>Total Distance: {(totalDistance / 1000).toFixed(2)} km</Text>
       </View>
     </SafeAreaView>
   );
